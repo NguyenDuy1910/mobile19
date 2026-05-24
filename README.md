@@ -1,8 +1,66 @@
-# MinLish Implementation Plan
+# MinLish
 
-MinLish is a mobile-first English vocabulary learning app focused on flashcards, spaced repetition, context-based learning, learning progress, reminders, and simple AI-assisted vocabulary support.
+MinLish is a mobile-first English vocabulary learning app for students, IELTS and TOEIC learners, and working professionals who want a simple way to build long-term vocabulary.
 
-This document is the planning source for the first implementation. It intentionally avoids over-engineering and keeps the architecture simple, modular, and maintainable.
+The first version focuses on a practical learning loop: create decks, add words, learn with flashcards, review with spaced repetition, track progress, receive reminders, and get lightweight AI help when needed.
+
+This repository is currently in the planning and foundation stage. This README is the main contributor guide and implementation plan.
+
+## At a Glance
+
+| Area | Decision |
+| --- | --- |
+| Mobile | Kotlin + Jetpack Compose |
+| Backend | Python + FastAPI |
+| Database | PostgreSQL |
+| ORM and migrations | SQLAlchemy + Alembic |
+| Authentication | JWT + bcrypt |
+| Learning algorithm | Simple SM-2 based spaced repetition |
+| Notifications | Mobile push notification design with scheduled reminders |
+| AI support | Simple learning-focused agent module, not a generic chatbot |
+
+## Contributor Quick Start
+
+The project should be built milestone by milestone. Do not start with advanced features before the core learning flow works.
+
+Recommended first contribution path:
+
+1. Read [MVP Scope](#mvp-scope) to understand what belongs in the first release.
+2. Read [Final Recommended Architecture](#final-recommended-architecture) before creating backend or mobile code.
+3. Start with [Milestone 1: Backend Foundation](#milestone-1-backend-foundation).
+4. Keep each pull request small and tied to one milestone task group.
+5. Add or update testing steps when behavior changes.
+
+Core learning flow to protect:
+
+```text
+Register/Login
+-> Create profile
+-> Create deck
+-> Add words
+-> Learn flashcards
+-> Review with SM-2
+-> See progress
+-> Receive reminder
+-> Use simple AI help when needed
+```
+
+## Table of Contents
+
+- [Product Goal](#product-goal)
+- [Target Users](#target-users)
+- [Technology Stack](#technology-stack)
+- [Final Recommended Architecture](#final-recommended-architecture)
+- [MVP Scope](#mvp-scope)
+- [Folder Structure](#folder-structure)
+- [Local Development Setup](#local-development-setup)
+- [Database Schema](#database-schema)
+- [SM-2 Review Design](#sm-2-review-design)
+- [Backend API Design](#backend-api-design)
+- [Kotlin Mobile Screen Structure](#kotlin-mobile-screen-structure)
+- [Milestone Checklist](#milestone-checklist)
+- [Contribution Workflow](#contribution-workflow)
+- [Definition of Done for MVP](#definition-of-done-for-mvp)
 
 ## Product Goal
 
@@ -278,6 +336,44 @@ mobile/
     ├── data/
     └── ui/
 ```
+
+## Local Development Setup
+
+The repository is currently planned before implementation. When the backend and mobile projects are added, contributors should use the setup below as the target local workflow.
+
+### Backend Target Workflow
+
+```bash
+cd backend
+uv sync
+uv run alembic upgrade head
+uv run uvicorn main:app --reload
+```
+
+Backend dependencies should be managed with `uv` through `pyproject.toml` and `uv.lock`. Do not add `requirements.txt` unless the team explicitly decides to support an additional install path.
+
+Expected backend environment variables:
+
+```bash
+DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/minlish
+JWT_SECRET_KEY=change-me
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+JWT_REFRESH_TOKEN_EXPIRE_DAYS=30
+```
+
+### Mobile Target Workflow
+
+1. Install Android Studio or IntelliJ IDEA with the Android plugin.
+2. Open the repository root so Gradle can load the `:mobile:app` module.
+3. Copy `local.properties.example` to `local.properties` if your IDE does not create it automatically.
+4. Update `sdk.dir` for your macOS or Windows Android SDK path.
+5. Let Gradle sync.
+6. Run the `mobile:app` configuration on an emulator or Android device.
+7. Test register, login, profile setup, deck creation, word creation, and flashcard review as features are implemented.
+
+### Database Target Workflow
+
+Use PostgreSQL locally. A later implementation may add Docker Compose for convenience, but the first version should not depend on complex infrastructure.
 
 ## Database Schema
 
@@ -1178,6 +1274,64 @@ The first working slice should be small and complete:
 10. Simple AI explain-word endpoint
 
 This order protects the core learning loop before adding import/export, practice, push delivery, or advanced AI.
+
+## Contribution Workflow
+
+Use this workflow for implementation work:
+
+1. Update `main` before starting work.
+2. Create every feature branch from `main`.
+3. Pick one milestone task group, not several unrelated features.
+4. Keep code simple and aligned with the folder structure in this README.
+5. Add tests for backend business logic and API behavior when possible.
+6. Manually test the user flow touched by the change.
+7. Open a pull request into `main`.
+8. Ask another contributor to review when the change is ready.
+
+Recommended commands:
+
+```bash
+git switch main
+git pull origin main
+git switch -c feat/your-feature-name
+```
+
+If Git blocks checkout because local files would be overwritten, preserve your current work first:
+
+```bash
+git stash push -u -m "work before switching branch"
+git switch main
+```
+
+After switching back to the correct branch, restore the work with:
+
+```bash
+git stash pop
+```
+
+Never discard local changes unless you are certain they are no longer needed.
+
+Keep the branch model simple: `main` is the main branch, and new work should start from `main`.
+
+### Pull Request Checklist
+
+Before requesting review, confirm:
+
+- [ ] The change belongs to the current milestone.
+- [ ] The core learning flow is not broken.
+- [ ] New backend endpoints validate user ownership.
+- [ ] Passwords, tokens, and secrets are not logged or committed.
+- [ ] Tests or manual testing steps are included.
+- [ ] README or API notes are updated when behavior changes.
+
+### Code Style Principles
+
+- Prefer small modules with clear names.
+- Keep business logic in services, not routers or UI screens.
+- Keep API schemas explicit and easy to read.
+- Avoid advanced abstractions until repeated complexity appears.
+- Do not introduce microservices for the first version.
+- Make mobile screens focused, simple, and usable with one hand.
 
 ## Security Plan
 
