@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fitsSystemWindows="true">
+
+    <!-- ═══ TOP APP BAR ══════════════════════════════════════ -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:navigationIconTint="@color/on_surface"
+            app:title="Thêm từ mới"
+            app:titleTextColor="@color/on_surface" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- ═══ SCROLL CONTENT ═══════════════════════════════════ -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingBottom="32dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="16dp">
+
+            <!-- ── DECK SELECTOR ────────────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:hint="@string/deck_label"
+                app:boxCornerRadiusBottomEnd="14dp"
+                app:boxCornerRadiusBottomStart="14dp"
+                app:boxCornerRadiusTopEnd="14dp"
+                app:boxCornerRadiusTopStart="14dp">
+
+                <Spinner
+                    android:id="@+id/spinnerDeck"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── SECTION HEADER ────────────────────────────── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.06"
+                android:text="Thông tin từ vựng"
+                android:textAllCaps="true"
+                android:textColor="@color/primary"
+                android:textSize="12sp" />
+
+            <!-- ── TỪ VỰNG (required) ─────────────────────────
+                 Dùng TextInputEditText thông thường.
+                 Autocomplete được xử lý bằng PopupWindow trong code. -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:hint="@string/word_label"
+                app:helperText="* Bắt buộc"
+                app:endIconMode="clear_text">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etWord"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── AI STATUS BAR (ẩn mặc định) ──────────────── -->
+            <LinearLayout
+                android:id="@+id/layoutAIStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="6dp"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/progressAI"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvAIStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/primary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <!-- ── PHIÊN ÂM ──────────────────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/pronunciation_label"
+                app:helperText="/phiên âm IPA/">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPronunciation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── NGHĨA (required) ──────────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/meaning_label"
+                app:helperText="* Bắt buộc">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMeaning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── GIẢI THÍCH TIẾNG ANH ──────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/description_en_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDescriptionEn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── SECTION HEADER: Chi tiết thêm ─────────────── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.06"
+                android:text="Chi tiết thêm (tùy chọn)"
+                android:textAllCaps="true"
+                android:textColor="@color/primary"
+                android:textSize="12sp" />
+
+            <!-- ── CÂU VÍ DỤ ─────────────────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/example_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etExample"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── COLLOCATION ───────────────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/collocation_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCollocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── TỪ LIÊN QUAN ──────────────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/related_words_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRelatedWords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── GHI CHÚ ───────────────────────────────────── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="28dp"
+                android:hint="@string/note_label"
+                app:counterEnabled="true"
+                app:counterMaxLength="200">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:maxLength="200"
+                    android:minLines="2"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── NÚT LƯU ───────────────────────────────────── -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/save"
+                android:textSize="16sp"
+                app:cornerRadius="16dp" />
+
+            <!-- ── NÚT HỦY ───────────────────────────────────── -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/cancel"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

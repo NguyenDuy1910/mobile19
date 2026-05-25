@@ -1,0 +1,97 @@
+<resources>
+    <string name="app_name">MinLish</string>
+    <string name="app_tagline">Học từ vựng thông minh</string>
+
+    <!-- Auth -->
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="email">Email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="confirm_password">Xác nhận mật khẩu</string>
+    <string name="login_with_google">Tiếp tục với Google</string>
+    <string name="no_account">Chưa có tài khoản? Đăng ký</string>
+    <string name="have_account">Đã có tài khoản? Đăng nhập</string>
+    <string name="or_divider">hoặc</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_decks">Bộ từ</string>
+    <string name="nav_study">Học</string>
+    <string name="nav_stats">Thống kê</string>
+    <string name="nav_profile">Hồ sơ</string>
+
+    <!-- Actions -->
+    <string name="add_word">Thêm từ</string>
+    <string name="study_now">Học ngay</string>
+    <string name="save">Lưu</string>
+    <string name="cancel">Hủy</string>
+    <string name="delete">Xóa</string>
+    <string name="edit">Sửa</string>
+    <string name="create_deck">Tạo bộ từ</string>
+    <string name="import_csv">Import CSV</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="show_answer">Xem đáp án</string>
+    <string name="save_profile">Lưu hồ sơ</string>
+
+    <!-- SRS Ratings -->
+    <string name="srs_again">Lại</string>
+    <string name="srs_hard">Khó</string>
+    <string name="srs_good">Tốt</string>
+    <string name="srs_easy">Dễ</string>
+
+    <!-- Vocabulary fields -->
+    <string name="word_label">Từ vựng</string>
+    <string name="pronunciation_label">Phiên âm</string>
+    <string name="meaning_label">Nghĩa</string>
+    <string name="description_en_label">Giải thích (EN)</string>
+    <string name="example_label">Câu ví dụ</string>
+    <string name="collocation_label">Collocation</string>
+    <string name="related_words_label">Từ liên quan</string>
+    <string name="note_label">Ghi chú</string>
+    <string name="deck_label">Bộ từ vựng</string>
+    <string name="no_deck">Chưa chọn bộ từ</string>
+
+    <!-- Deck -->
+    <string name="deck_name">Tên bộ từ</string>
+    <string name="deck_description">Mô tả (tùy chọn)</string>
+    <string name="word_count">%d từ</string>
+    <string name="no_decks">Chưa có bộ từ nào\nNhấn + để tạo mới</string>
+    <string name="no_words">Chưa có từ nào trong bộ từ này</string>
+    <string name="no_all_words">Chưa có từ vựng nào</string>
+
+    <!-- Study / Flashcard -->
+    <string name="progress_format">%1$d / %2$d</string>
+    <string name="session_complete">Hoàn thành! 🎉</string>
+    <string name="session_accuracy">Độ chính xác: %d%%</string>
+    <string name="no_due_cards">Không có từ nào cần ôn hôm nay 🎉\nQuay lại sau!</string>
+    <string name="studying_deck">Đang học: %s</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Hồ sơ</string>
+    <string name="your_name">Tên hiển thị</string>
+    <string name="learning_goal">Mục tiêu học</string>
+    <string name="level">Trình độ</string>
+    <string name="total_words">Tổng từ</string>
+    <string name="total_decks">Bộ từ</string>
+
+    <!-- Errors -->
+    <string name="error_word_required">Vui lòng nhập từ vựng</string>
+    <string name="error_meaning_required">Vui lòng nhập nghĩa</string>
+    <string name="error_deck_name_required">Vui lòng nhập tên bộ từ</string>
+    <string name="error_email_required">Vui lòng nhập đầy đủ email và mật khẩu</string>
+    <string name="error_password_mismatch">Mật khẩu không khớp</string>
+
+    <!-- Due status chips -->
+    <string name="due_now">Cần ôn</string>
+    <string name="due_today">Hôm nay</string>
+    <string name="due_tomorrow">Ngày mai</string>
+    <string name="due_in_days">%d ngày</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_edit">Sửa từ</string>
+    <string name="cd_delete">Xóa từ</string>
+    <string name="cd_back">Quay lại</string>
+    <string name="cd_add">Thêm mới</string>
+    <string name="cd_menu">Menu</string>
+</resources>

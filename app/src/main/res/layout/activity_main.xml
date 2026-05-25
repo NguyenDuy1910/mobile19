@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_main.xml — MinLish Redesign
+    Thêm: nút "Thêm Deck" vào quick actions
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fitsSystemWindows="true">
+
+    <!-- AppBar — không hiện title vì là màn hình chính -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background"
+        app:elevation="0dp">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="MinLish"
+            app:titleTextColor="@color/on_surface"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main scroll content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:paddingBottom="96dp"
+        android:clipToPadding="false"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="8dp">
+
+            <!-- ── Hero card: số từ cần ôn + nút học ngay ── -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardStudyCta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/primary"
+                android:layout_marginBottom="20dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:id="@+id/tvDueCount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="0 từ cần ôn"
+                        android:textSize="28sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/white"
+                        android:letterSpacing="-0.01"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnFlashcard"
+                        android:layout_marginEnd="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvDueSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Hôm nay"
+                        android:textSize="14sp"
+                        android:textColor="#AAFFFFFF"
+                        android:layout_marginTop="4dp"
+                        app:layout_constraintTop_toBottomOf="@id/tvDueCount"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnFlashcard"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginBottom="16dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFlashcard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="@string/study_now"
+                        android:textColor="@color/primary"
+                        android:fontFamily="sans-serif-medium"
+                        app:cornerRadius="14dp"
+                        android:backgroundTint="@color/white"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── Quick stats: Tổng từ / Decks / Streak ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/primary_container"
+                    android:layout_marginEnd="8dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="16dp">
+                        <TextView android:id="@+id/tvTotalWords" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:text="0" android:textSize="26sp"
+                            android:fontFamily="sans-serif-medium" android:textColor="@color/primary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/total_words" android:textSize="12sp"
+                            android:textColor="@color/on_primary_container"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/secondary_container"
+                    android:layout_marginEnd="8dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="16dp">
+                        <TextView android:id="@+id/tvTotalDecks" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:text="0" android:textSize="26sp"
+                            android:fontFamily="sans-serif-medium" android:textColor="@color/secondary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/total_decks" android:textSize="12sp"
+                            android:textColor="@color/on_secondary_container"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#FFF3E0">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="16dp">
+                        <TextView android:id="@+id/tvStreak" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:text="0🔥" android:textSize="22sp"
+                            android:fontFamily="sans-serif-medium" android:textColor="@color/streak_flame"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Streak" android:textSize="12sp" android:textColor="#E65100"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- ── Quick actions row 1: Thêm từ + Import CSV ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAdd"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="@string/add_word"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:cornerRadius="14dp"
+                    android:layout_marginEnd="10dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnImportCsv"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="@string/import_csv"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    app:strokeColor="@color/outline"
+                    android:textColor="@color/on_surface_variant"
+                    app:cornerRadius="14dp"/>
+
+            </LinearLayout>
+
+            <!-- ── Quick actions row 2: Thêm Deck (MỚI) + Quiz ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp">
+
+                <!-- NÚT THÊM DECK MỚI -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddDeck"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="📚 Thêm Deck"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    app:cornerRadius="14dp"
+                    android:layout_marginEnd="10dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnQuiz"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="🧠 Quiz"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    app:cornerRadius="14dp"/>
+
+            </LinearLayout>
+
+            <!-- ── Search bar ── -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tìm kiếm từ vựng..."
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                app:startIconTint="@color/on_surface_variant"
+                style="@style/Widget.MinLish.TextInputLayout"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch"
+                    android:textSize="15sp"
+                    android:textColor="@color/on_surface"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── Filter chips ── -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupFilter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tất cả"
+                    android:checked="true"
+                    style="@style/Widget.Material3.Chip.Filter"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏰ Cần ôn"
+                    style="@style/Widget.Material3.Chip.Filter"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLearned"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✅ Đã học"
+                    style="@style/Widget.Material3.Chip.Filter"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipNew"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🆕 Chưa học"
+                    style="@style/Widget.Material3.Chip.Filter"/>
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Section header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Từ vựng"
+                android:textSize="17sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/on_surface"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"/>
+
+            <!-- Empty state -->
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/no_all_words"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="15sp"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ── Bottom Navigation ── -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/surface"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

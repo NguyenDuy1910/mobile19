@@ -1,0 +1,235 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ═══════════════════════════════════════════════════════
+         MinLish — Material You 3 Theme
+         Font: Google Sans (via downloadable fonts)
+         Style: Modern, Clean, High-end
+    ═══════════════════════════════════════════════════════ -->
+
+    <style name="Base.Theme.MinLish" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+
+        <!-- Surface system -->
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+
+        <!-- Error -->
+        <item name="colorError">@color/error</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+
+        <!-- Window background -->
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:colorBackground">@color/background</item>
+
+        <!-- Status bar & navigation bar (Edge-to-Edge) -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- Typography: use Material3 defaults (Roboto Flex / Google Sans fallback) -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.MinLish.DisplayLarge</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.MinLish.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.MinLish.TitleMedium</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.MinLish.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.MinLish.BodyMedium</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.MinLish.LabelMedium</item>
+
+        <!-- Shape system — large corner radius -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.MinLish.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MinLish.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MinLish.Large</item>
+
+        <!-- Component overrides -->
+        <item name="materialButtonStyle">@style/Widget.MinLish.Button</item>
+        <item name="textInputStyle">@style/Widget.MinLish.TextInputLayout</item>
+        <item name="cardViewStyle">@style/Widget.MinLish.Card</item>
+        <item name="bottomNavigationStyle">@style/Widget.MinLish.BottomNavigation</item>
+        <item name="floatingActionButtonStyle">@style/Widget.MinLish.FAB</item>
+        <item name="chipStyle">@style/Widget.MinLish.Chip</item>
+
+        <!-- Ripple -->
+        <item name="android:colorControlHighlight">#1A4338CA</item>
+
+    </style>
+
+    <style name="Theme.MinLish" parent="Base.Theme.MinLish" />
+
+    <!-- ═══ TYPOGRAPHY ═══════════════════════════════════════ -->
+
+    <style name="TextAppearance.MinLish.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">57sp</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="TextAppearance.MinLish.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/on_surface</item>
+    </style>
+
+    <style name="TextAppearance.MinLish.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/on_surface</item>
+    </style>
+
+    <style name="TextAppearance.MinLish.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingMultiplier">1.5</item>
+    </style>
+
+    <style name="TextAppearance.MinLish.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingMultiplier">1.4</item>
+    </style>
+
+    <style name="TextAppearance.MinLish.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- ═══ SHAPES ════════════════════════════════════════════ -->
+
+    <style name="ShapeAppearance.MinLish.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="ShapeAppearance.MinLish.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.MinLish.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">24dp</item>
+    </style>
+
+    <!-- ═══ COMPONENTS ════════════════════════════════════════ -->
+
+    <style name="Widget.MinLish.Button" parent="Widget.Material3.Button">
+        <item name="android:minHeight">52dp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Widget.MinLish.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">52dp</item>
+        <item name="cornerRadius">14dp</item>
+    </style>
+
+    <style name="Widget.MinLish.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">52dp</item>
+        <item name="cornerRadius">14dp</item>
+    </style>
+
+    <style name="Widget.MinLish.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <!-- SRS Button styles -->
+    <style name="Widget.MinLish.Button.SRS" parent="Widget.Material3.Button">
+        <item name="android:minHeight">56dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="Widget.MinLish.Button.SRS.Again">
+        <item name="backgroundTint">@color/srs_again_container</item>
+        <item name="android:textColor">@color/srs_again_on</item>
+        <item name="rippleColor">@color/srs_again</item>
+    </style>
+
+    <style name="Widget.MinLish.Button.SRS.Hard">
+        <item name="backgroundTint">@color/srs_hard_container</item>
+        <item name="android:textColor">@color/srs_hard_on</item>
+        <item name="rippleColor">@color/srs_hard</item>
+    </style>
+
+    <style name="Widget.MinLish.Button.SRS.Good">
+        <item name="backgroundTint">@color/srs_good_container</item>
+        <item name="android:textColor">@color/srs_good_on</item>
+        <item name="rippleColor">@color/srs_good</item>
+    </style>
+
+    <style name="Widget.MinLish.Button.SRS.Easy">
+        <item name="backgroundTint">@color/srs_easy_container</item>
+        <item name="android:textColor">@color/srs_easy_on</item>
+        <item name="rippleColor">@color/srs_easy</item>
+    </style>
+
+    <style name="Widget.MinLish.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="boxStrokeColor">@color/outline</item>
+        <item name="hintTextColor">@color/primary</item>
+    </style>
+
+    <style name="Widget.MinLish.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="strokeColor">@color/outline_variant</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Widget.MinLish.FAB" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="shapeAppearance">@style/ShapeAppearance.MinLish.Large</item>
+    </style>
+
+    <style name="Widget.MinLish.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipCornerRadius">10dp</item>
+    </style>
+
+    <style name="Widget.MinLish.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemActiveIndicatorStyle">@style/Widget.MinLish.BottomNavIndicator</item>
+    </style>
+
+    <style name="Widget.MinLish.BottomNavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="shapeAppearance">@style/ShapeAppearance.MinLish.Medium</item>
+    </style>
+
+    <!-- ═══ FLASHCARD special theme (fullscreen immersive) ══ -->
+    <style name="Theme.MinLish.Flashcard" parent="Theme.MinLish">
+        <item name="android:windowBackground">@color/background</item>
+    </style>
+
+    <!-- ═══ DIALOG ════════════════════════════════════════════ -->
+    <style name="Widget.MinLish.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearance">@style/ShapeAppearance.MinLish.Large</item>
+    </style>
+
+    <!-- ═══ Progress bar tonal ═══════════════════════════════ -->
+    <style name="Widget.MinLish.LinearProgress" parent="Widget.Material3.LinearProgressIndicator">
+        <item name="trackCornerRadius">4dp</item>
+        <item name="trackThickness">6dp</item>
+        <item name="indicatorColor">@color/primary</item>
+        <item name="trackColor">@color/surface_dim</item>
+    </style>
+
+</resources>
