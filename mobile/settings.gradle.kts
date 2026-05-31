@@ -15,4 +15,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "MinLish"
-include(":mobile:app")
+include(":app")
+
