@@ -4,7 +4,7 @@ MinLish is a mobile-first English vocabulary learning app for students, IELTS an
 
 The first version focuses on a practical learning loop: create decks, add words, learn with flashcards, review with spaced repetition, track progress, receive reminders, and get lightweight AI help when needed.
 
-This repository is currently in the planning and foundation stage. This README is the main contributor guide and implementation plan.
+The repository includes an implemented FastAPI MVP backend and an Android foundation project. This README remains the contributor guide and product scope reference.
 
 ## At a Glance
 
@@ -339,41 +339,56 @@ mobile/
 
 ## Local Development Setup
 
-The repository is currently planned before implementation. When the backend and mobile projects are added, contributors should use the setup below as the target local workflow.
-
-### Backend Target Workflow
+### Backend Workflow
 
 ```bash
+docker compose up -d postgres
+
 cd backend
 uv sync
+cp .env.example .env
 uv run alembic upgrade head
+uv run pytest
 uv run uvicorn main:app --reload
 ```
 
-Backend dependencies should be managed with `uv` through `pyproject.toml` and `uv.lock`. Do not add `requirements.txt` unless the team explicitly decides to support an additional install path.
+Open `http://127.0.0.1:8000/docs` for interactive API documentation. Backend dependencies are managed with `uv` through `pyproject.toml` and `uv.lock`.
 
 Expected backend environment variables:
 
 ```bash
-DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/minlish
+DATABASE_URL=postgresql+psycopg://minlish:minlish@localhost:5432/minlish
 JWT_SECRET_KEY=change-me
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
 JWT_REFRESH_TOKEN_EXPIRE_DAYS=30
+DICTIONARY_API_BASE_URL=https://api.dictionaryapi.dev/api/v2
 ```
 
-### Mobile Target Workflow
+### Mobile Workflow
 
-1. Install Android Studio or IntelliJ IDEA with the Android plugin.
-2. Open the repository root so Gradle can load the `:mobile:app` module.
-3. Copy `local.properties.example` to `local.properties` if your IDE does not create it automatically.
-4. Update `sdk.dir` for your macOS or Windows Android SDK path.
-5. Let Gradle sync.
-6. Run the `mobile:app` configuration on an emulator or Android device.
-7. Test register, login, profile setup, deck creation, word creation, and flashcard review as features are implemented.
+1. Install Android Studio with Android SDK 35.
+2. Open the `mobile` folder as a Gradle project.
+3. Ensure `mobile/local.properties` contains the Android SDK path.
+4. Start the backend.
+5. Run the `app` configuration on an emulator. The default backend URL is `http://10.0.2.2:8000/`.
+6. For a physical device, pass the development machine's LAN IP:
 
-### Database Target Workflow
+```bash
+cd mobile
+./gradlew :app:installDebug -PMINLISH_API_BASE_URL=http://192.168.1.10:8000/
+```
 
-Use PostgreSQL locally. A later implementation may add Docker Compose for convenience, but the first version should not depend on complex infrastructure.
+Mobile checks:
+
+```bash
+cd mobile
+./gradlew :app:testDebugUnitTest
+./gradlew :app:assembleDebug
+```
+
+### Database Workflow
+
+Local PostgreSQL runs from the root `docker-compose.yml`. The Compose service uses PostgreSQL 16 with the `minlish` database and local development credentials shown above.
 
 ## Database Schema
 
