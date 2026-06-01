@@ -267,7 +267,7 @@ fun FloatingEmoji(emoji: String, size: Int = 56) {
             .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Text(emoji, style = MaterialTheme.typography.displaySmall, modifier = Modifier.padding(top = offset.dp))
+        Text(emoji, style = MaterialTheme.typography.displaySmall, modifier = Modifier.offset(y = offset.dp))
     }
 }
 

@@ -40,15 +40,25 @@ fun MinLishApp(container: AppContainer) {
     val factory = remember(container) { MinLishViewModelFactory(container) }
     val appState: AppStateViewModel = viewModel(factory = factory)
     when (val session = appState.state.collectAsStateWithLifecycle().value) {
-        SessionState.Loading -> LoadingState("Opening MinLish...")
-        SessionState.SignedOut -> AuthNavigation(factory)
+        SessionState.Loading -> {
+            com.minlish.app.core.utils.MinLishLog.d("App", "Session state: Loading")
+            LoadingState("Opening MinLish...")
+        }
+        SessionState.SignedOut -> {
+            com.minlish.app.core.utils.MinLishLog.d("App", "Session state: SignedOut → showing Auth")
+            AuthNavigation(factory)
+        }
         is SessionState.NeedsProfile -> {
+            com.minlish.app.core.utils.MinLishLog.d("App", "Session state: NeedsProfile for ${session.me.email}")
             val profile: ProfileViewModel = viewModel(factory = factory)
             val state by profile.state.collectAsStateWithLifecycle()
             LaunchedEffect(state) { if (state is UiState.Success) appState.refresh() }
             ProfileSetupScreen(state, session.me.profile, profile::save)
         }
-        is SessionState.Ready -> MainNavigation(session.me, factory, appState::refresh, appState::logout)
+        is SessionState.Ready -> {
+            com.minlish.app.core.utils.MinLishLog.d("App", "Session state: Ready for ${session.me.profile.name} (${session.me.email})")
+            MainNavigation(session.me, factory, appState::refresh, appState::logout)
+        }
     }
 }
 
@@ -105,6 +115,7 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
     ) { outerPadding ->
         NavHost(navController, startDestination = AppRoute.Home.route, modifier = Modifier.padding(outerPadding)) {
             composable(AppRoute.Home.route) {
+                com.minlish.app.core.utils.MinLishLog.nav("Home")
                 val vm: HomeViewModel = viewModel(factory = factory)
                 val state by vm.state.collectAsStateWithLifecycle()
                 LaunchedEffect(Unit) { vm.load() }
@@ -120,18 +131,21 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 )
             }
             composable(AppRoute.Decks.route) {
+                com.minlish.app.core.utils.MinLishLog.nav("Decks")
                 val vm: DeckViewModel = viewModel(factory = factory)
                 val state by vm.decks.collectAsStateWithLifecycle()
                 LaunchedEffect(Unit) { vm.loadDecks() }
                 DeckListScreen(state, vm::loadDecks, { navController.navigate(AppRoute.CreateDeck.route) }) { navController.navigate(AppRoute.DeckDetail.route(it)) }
             }
             composable(AppRoute.CreateDeck.route) {
+                com.minlish.app.core.utils.MinLishLog.nav("CreateDeck")
                 val vm: DeckViewModel = viewModel(factory = factory)
                 val error by vm.deckEditorError.collectAsStateWithLifecycle()
                 DeckEditorScreen(error = error, onSave = { name, description, tags -> vm.saveDeck(null, name, description, tags) { navController.popBackStack() } }, onBack = navController::popBackStack)
             }
             composable(AppRoute.DeckDetail.route, arguments = listOf(navArgument("deckId") { type = NavType.StringType })) { entry ->
                 val deckId = entry.arguments?.getString("deckId").orEmpty()
+                com.minlish.app.core.utils.MinLishLog.nav("DeckDetail(deckId=$deckId)")
                 val vm: DeckViewModel = viewModel(factory = factory)
                 val state by vm.detail.collectAsStateWithLifecycle()
                 val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -213,6 +227,7 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 }
             }
             composable(AppRoute.Learning.route) {
+                com.minlish.app.core.utils.MinLishLog.nav("Learning/Flashcard")
                 val vm: LearningViewModel = viewModel(factory = factory)
                 val state by vm.state.collectAsStateWithLifecycle()
                 LaunchedEffect(Unit) { vm.load() }
@@ -220,12 +235,14 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 FlashcardScreen(state, vm::load, navController::popBackStack, vm::rate)
             }
             composable(AppRoute.Progress.route) {
+                com.minlish.app.core.utils.MinLishLog.nav("Progress")
                 val vm: ProgressViewModel = viewModel(factory = factory)
                 val state by vm.state.collectAsStateWithLifecycle()
                 LaunchedEffect(Unit) { vm.load() }
                 ProgressDashboardScreen(state, vm::load)
             }
             composable(AppRoute.Settings.route) {
+                com.minlish.app.core.utils.MinLishLog.nav("Settings")
                 SettingsScreen(me, { navController.navigate(AppRoute.Profile.route) }, { navController.navigate(AppRoute.Notifications.route) }, { navController.navigate(AppRoute.Practice.route) }, { navController.navigate(AppRoute.WordHelp.route()) }, logout)
             }
             composable(AppRoute.Profile.route) {
@@ -240,6 +257,7 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 ProfileSetupScreen(state, me.profile, vm::save)
             }
             composable(AppRoute.Practice.route) {
+                com.minlish.app.core.utils.MinLishLog.nav("Practice")
                 val vm: PracticeViewModel = viewModel(factory = factory)
                 val state by vm.state.collectAsStateWithLifecycle()
                 PracticeScreen(state, vm::generate, vm::submit, vm::next, { navController.navigate(AppRoute.PracticeHistory.route) }, navController::popBackStack)

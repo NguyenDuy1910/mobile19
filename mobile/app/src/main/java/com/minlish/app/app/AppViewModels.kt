@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.minlish.app.core.model.*
 import com.minlish.app.core.network.ApiResult
 import com.minlish.app.core.network.UiState
+import com.minlish.app.core.utils.MinLishLog
 import java.util.TimeZone
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,8 +27,10 @@ class AppStateViewModel(private val container: AppContainer) : ViewModel() {
 
     init {
         viewModelScope.launch {
+            MinLishLog.d("AppStateVM", "Initializing auth repository...")
             container.authRepository.initialize()
             container.authRepository.tokens.collect { tokens ->
+                MinLishLog.d("AppStateVM", "Token changed: isAuthenticated=${tokens.isAuthenticated}")
                 if (tokens.isAuthenticated) refresh() else _state.value = SessionState.SignedOut
             }
         }
@@ -35,10 +38,15 @@ class AppStateViewModel(private val container: AppContainer) : ViewModel() {
 
     fun refresh() {
         viewModelScope.launch {
+            MinLishLog.d("AppStateVM", "refresh() → calling /me")
             _state.value = SessionState.Loading
             when (val result = container.authRepository.me()) {
-                is ApiResult.Error -> _state.value = SessionState.SignedOut
+                is ApiResult.Error -> {
+                    MinLishLog.e("AppStateVM", "refresh() failed: ${result.message}")
+                    _state.value = SessionState.SignedOut
+                }
                 is ApiResult.Success -> {
+                    MinLishLog.d("AppStateVM", "refresh() success: profile.isComplete=${result.data.profile.isComplete}")
                     _state.value = if (result.data.profile.isComplete) {
                         SessionState.Ready(result.data)
                     } else {
@@ -51,6 +59,7 @@ class AppStateViewModel(private val container: AppContainer) : ViewModel() {
 
     fun logout() {
         viewModelScope.launch {
+            MinLishLog.d("AppStateVM", "logout()")
             container.authRepository.logout()
             _state.value = SessionState.SignedOut
         }
@@ -63,15 +72,22 @@ class AuthViewModel(private val container: AppContainer) : ViewModel() {
     private val _state = MutableStateFlow(AuthFormState())
     val state = _state.asStateFlow()
 
-    fun login(email: String, password: String) = authenticate { container.authRepository.login(email, password) }
-    fun register(email: String, password: String) = authenticate { container.authRepository.register(email, password) }
+    fun login(email: String, password: String) = authenticate("login", email) { container.authRepository.login(email, password) }
+    fun register(email: String, password: String) = authenticate("register", email) { container.authRepository.register(email, password) }
 
-    private fun authenticate(block: suspend () -> ApiResult<MeDto>) {
+    private fun authenticate(action: String, email: String, block: suspend () -> ApiResult<MeDto>) {
         viewModelScope.launch {
+            MinLishLog.d("AuthVM", "$action() email=$email")
             _state.value = AuthFormState(loading = true)
             _state.value = when (val result = block()) {
-                is ApiResult.Error -> AuthFormState(error = result.message)
-                is ApiResult.Success -> AuthFormState()
+                is ApiResult.Error -> {
+                    MinLishLog.e("AuthVM", "$action() failed: ${result.message}")
+                    AuthFormState(error = result.message)
+                }
+                is ApiResult.Success -> {
+                    MinLishLog.d("AuthVM", "$action() success for ${result.data.email}")
+                    AuthFormState()
+                }
             }
         }
     }
@@ -107,6 +123,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
 
     fun load() {
         viewModelScope.launch {
+            MinLishLog.d("HomeVM", "load() → fetching me, plan, progress, decks")
             _state.value = UiState.Loading
             val me = async { container.authRepository.me() }
             val plan = async { container.learningRepository.plan() }
@@ -118,16 +135,17 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
             val decksResult = decks.await()
             val error = listOf(meResult, planResult, progressResult, decksResult).filterIsInstance<ApiResult.Error>().firstOrNull()
             _state.value = if (error != null) {
+                MinLishLog.e("HomeVM", "load() failed: ${error.message}")
                 UiState.Error(error.message)
             } else {
-                UiState.Success(
-                    HomeData(
-                        (meResult as ApiResult.Success).data,
-                        (planResult as ApiResult.Success).data,
-                        (progressResult as ApiResult.Success).data,
-                        (decksResult as ApiResult.Success).data,
-                    ),
+                val data = HomeData(
+                    (meResult as ApiResult.Success).data,
+                    (planResult as ApiResult.Success).data,
+                    (progressResult as ApiResult.Success).data,
+                    (decksResult as ApiResult.Success).data,
                 )
+                MinLishLog.d("HomeVM", "load() success: ${data.decks.size} decks, plan.totalDue=${data.plan.totalDue}, streak=${data.progress.streakDays}")
+                UiState.Success(data)
             }
         }
     }
@@ -147,22 +165,37 @@ class DeckViewModel(private val container: AppContainer) : ViewModel() {
     val deckEditorError = _deckEditorError.asStateFlow()
 
     fun loadDecks() = viewModelScope.launch {
+        MinLishLog.d("DeckVM", "loadDecks()")
         _decks.value = UiState.Loading
-        _decks.value = container.deckRepository.list().toUiState(emptyIf = { it.isEmpty() })
+        _decks.value = container.deckRepository.list().toUiState(emptyIf = { it.isEmpty() }).also {
+            MinLishLog.state("DeckVM", "decks → $it")
+        }
     }
 
     fun loadDetail(deckId: String) = viewModelScope.launch {
+        MinLishLog.d("DeckVM", "loadDetail(deckId=$deckId)")
         _detail.value = UiState.Loading
         val deck = container.deckRepository.get(deckId)
         val words = container.vocabularyRepository.list(deckId)
         _detail.value = when {
-            deck is ApiResult.Error -> UiState.Error(deck.message)
-            words is ApiResult.Error -> UiState.Error(words.message)
-            else -> UiState.Success(DeckDetailData((deck as ApiResult.Success).data, (words as ApiResult.Success).data))
+            deck is ApiResult.Error -> {
+                MinLishLog.e("DeckVM", "loadDetail() deck error: ${deck.message}")
+                UiState.Error(deck.message)
+            }
+            words is ApiResult.Error -> {
+                MinLishLog.e("DeckVM", "loadDetail() words error: ${words.message}")
+                UiState.Error(words.message)
+            }
+            else -> {
+                val data = DeckDetailData((deck as ApiResult.Success).data, (words as ApiResult.Success).data)
+                MinLishLog.d("DeckVM", "loadDetail() success: deck='${data.deck.name}', ${data.words.size} words")
+                UiState.Success(data)
+            }
         }
     }
 
     fun saveDeck(id: String?, name: String, description: String, tags: String, onSaved: () -> Unit) = viewModelScope.launch {
+        MinLishLog.d("DeckVM", "saveDeck(id=$id, name=$name)")
         _deckEditorError.value = null
         val normalizedTags = tags.split(",").map(String::trim).filter(String::isNotBlank)
         val result = if (id == null) {
@@ -170,17 +203,31 @@ class DeckViewModel(private val container: AppContainer) : ViewModel() {
         } else {
             container.deckRepository.update(id, DeckUpdateRequest(name.trim(), description.trim().ifBlank { null }, normalizedTags))
         }
-        if (result is ApiResult.Success) onSaved() else _deckEditorError.value = (result as ApiResult.Error).message
+        if (result is ApiResult.Success) {
+            MinLishLog.d("DeckVM", "saveDeck() success")
+            onSaved()
+        } else {
+            MinLishLog.e("DeckVM", "saveDeck() failed: ${(result as ApiResult.Error).message}")
+            _deckEditorError.value = result.message
+        }
     }
 
     fun deleteDeck(id: String, onDeleted: () -> Unit) = viewModelScope.launch {
+        MinLishLog.d("DeckVM", "deleteDeck(id=$id)")
         when (val result = container.deckRepository.delete(id)) {
-            is ApiResult.Error -> _detail.value = UiState.Error(result.message)
-            is ApiResult.Success -> onDeleted()
+            is ApiResult.Error -> {
+                MinLishLog.e("DeckVM", "deleteDeck() failed: ${result.message}")
+                _detail.value = UiState.Error(result.message)
+            }
+            is ApiResult.Success -> {
+                MinLishLog.d("DeckVM", "deleteDeck() success")
+                onDeleted()
+            }
         }
     }
 
     fun lookup(word: String) = viewModelScope.launch {
+        MinLishLog.d("DeckVM", "lookup(word=$word)")
         _editor.value = WordEditorState(loading = true)
         _editor.value = when (val result = container.vocabularyRepository.lookup(word.trim())) {
             is ApiResult.Error -> WordEditorState(error = result.message)
@@ -259,28 +306,39 @@ class LearningViewModel(private val container: AppContainer) : ViewModel() {
     val state = _state.asStateFlow()
 
     fun load() = viewModelScope.launch {
+        MinLishLog.d("LearningVM", "load() → fetching due words")
         _state.value = UiState.Loading
         val words = container.learningRepository.dueWords()
         if (words is ApiResult.Error) {
+            MinLishLog.e("LearningVM", "load() dueWords error: ${words.message}")
             _state.value = UiState.Error(words.message)
             return@launch
         }
         val due = (words as ApiResult.Success).data
+        MinLishLog.d("LearningVM", "load() due words count: ${due.size}")
         if (due.isEmpty()) {
             _state.value = UiState.Empty
             return@launch
         }
         val session = container.learningRepository.startSession()
-        _state.value = if (session is ApiResult.Error) UiState.Error(session.message) else {
-            UiState.Success(LearningData(words = due, sessionId = (session as ApiResult.Success).data.id))
+        _state.value = if (session is ApiResult.Error) {
+            MinLishLog.e("LearningVM", "load() startSession error: ${session.message}")
+            UiState.Error(session.message)
+        } else {
+            MinLishLog.d("LearningVM", "load() session started: ${(session as ApiResult.Success).data.id}")
+            UiState.Success(LearningData(words = due, sessionId = session.data.id))
         }
     }
 
     fun rate(rating: String) = viewModelScope.launch {
         val data = (_state.value as? UiState.Success)?.data ?: return@launch
         val current = data.current ?: return@launch
+        MinLishLog.d("LearningVM", "rate($rating) word='${current.vocabItem.word}' [${data.index + 1}/${data.words.size}]")
         when (val result = container.learningRepository.review(current.vocabItem.id, rating)) {
-            is ApiResult.Error -> _state.value = UiState.Error(result.message)
+            is ApiResult.Error -> {
+                MinLishLog.e("LearningVM", "rate() error: ${result.message}")
+                _state.value = UiState.Error(result.message)
+            }
             is ApiResult.Success -> {
                 val next = data.copy(
                     index = data.index + 1,
