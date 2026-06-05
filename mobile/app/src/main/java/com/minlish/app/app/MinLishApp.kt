@@ -1,5 +1,12 @@
 package com.minlish.app.app
 
+import androidx.credentials.CustomCredential
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.minlish.app.core.utils.MinLishLog
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -53,7 +60,8 @@ fun MinLishApp(container: AppContainer) {
             val profile: ProfileViewModel = viewModel(factory = factory)
             val state by profile.state.collectAsStateWithLifecycle()
             LaunchedEffect(state) { if (state is UiState.Success) appState.refresh() }
-            ProfileSetupScreen(state, session.me.profile, profile::save)
+            // ── CHANGED: truyền thêm onLogout = appState::logout ──
+            ProfileSetupScreen(state, session.me.profile, profile::save, onLogout = appState::logout)
         }
         is SessionState.Ready -> {
             com.minlish.app.core.utils.MinLishLog.d("App", "Session state: Ready for ${session.me.profile.name} (${session.me.email})")
@@ -67,9 +75,66 @@ private fun AuthNavigation(factory: MinLishViewModelFactory) {
     val navController = rememberNavController()
     val auth: AuthViewModel = viewModel(factory = factory)
     val state by auth.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // ── Google Sign-In helper ────────────────────────────────────
+    val credentialManager = remember { CredentialManager.create(context) }
+
+    fun launchGoogleSignIn() {
+        coroutineScope.launch {
+            try {
+                val googleIdOption = GetGoogleIdOption.Builder()
+                    // Thay bằng Web Client ID của Firebase project
+                    // Lấy từ: Firebase Console → Project Settings → Web API Key
+                    // hoặc google-services.json → oauth_client[type=3].client_id
+                    .setServerClientId(context.getString(com.minlish.app.R.string.google_web_client_id))
+                    .setFilterByAuthorizedAccounts(false) // cho phép chọn bất kỳ tài khoản Google
+                    .build()
+
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                val result = credentialManager.getCredential(context = context, request = request)
+                val credential = result.credential
+
+                if (credential is GoogleIdTokenCredential) {
+                    auth.loginWithGoogle(credential.idToken)
+                } else if (credential is CustomCredential &&
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    // Parse từ CustomCredential
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    auth.loginWithGoogle(googleIdTokenCredential.idToken)
+                } else {
+                    MinLishLog.e("AuthNav", "Unexpected credential type: ${credential::class.simpleName}")
+                }
+            } catch (e: GetCredentialException) {
+                MinLishLog.e("AuthNav", "Google Sign-In cancelled or failed: ${e.message}")
+                // Người dùng huỷ → không cần báo lỗi
+            } catch (e: Exception) {
+                MinLishLog.e("AuthNav", "Google Sign-In error: ${e.message}")
+            }
+        }
+    }
+
     NavHost(navController, startDestination = AppRoute.Login.route) {
-        composable(AppRoute.Login.route) { LoginScreen(state, auth::login) { navController.navigate(AppRoute.Register.route) } }
-        composable(AppRoute.Register.route) { RegisterScreen(state, auth::register) { navController.popBackStack() } }
+        composable(AppRoute.Login.route) {
+            LoginScreen(
+                state = state,
+                onLogin = auth::login,
+                onGoogleSignIn = ::launchGoogleSignIn,
+                onRegister = { navController.navigate(AppRoute.Register.route) },
+            )
+        }
+        composable(AppRoute.Register.route) {
+            RegisterScreen(
+                state = state,
+                onRegister = auth::register,
+                onGoogleSignIn = ::launchGoogleSignIn,
+                onLogin = { navController.popBackStack() },
+            )
+        }
     }
 }
 
@@ -102,9 +167,9 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                         icon = { Icon(if (selected) item.selectedIcon else item.icon, item.label) },
                         label = { Text(item.label) },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedIconColor   = MaterialTheme.colorScheme.primary,
+                            selectedTextColor   = MaterialTheme.colorScheme.primary,
+                            indicatorColor      = MaterialTheme.colorScheme.primaryContainer,
                             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
@@ -119,6 +184,37 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 val vm: HomeViewModel = viewModel(factory = factory)
                 val state by vm.state.collectAsStateWithLifecycle()
                 LaunchedEffect(Unit) { vm.load() }
+
+                // ── CSV import launcher ───────────────────────────
+                val deckVm: DeckViewModel = viewModel(factory = factory)
+                val csvLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.OpenDocument()
+                ) { uri ->
+                    if (uri != null) {
+                        val firstDeckId = (state as? UiState.Success)?.data?.decks?.firstOrNull()?.id
+                        if (firstDeckId != null) {
+                            val content = context.contentResolver
+                                .openInputStream(uri)?.use { it.readBytes() }
+                            if (content != null) {
+                                deckVm.importDeck(
+                                    firstDeckId,
+                                    uri.lastPathSegment ?: "import.csv",
+                                    content,
+                                ) { message ->
+                                    coroutineScope.launch {
+                                        snackbar.showSnackbar(message)
+                                        vm.load()
+                                    }
+                                }
+                            } else {
+                                coroutineScope.launch { snackbar.showSnackbar("Could not read that CSV file.") }
+                            }
+                        } else {
+                            coroutineScope.launch { snackbar.showSnackbar("Please create a deck first before importing.") }
+                        }
+                    }
+                }
+
                 HomeScreen(
                     state, vm::load,
                     { navController.navigate(AppRoute.CreateDeck.route) },
@@ -128,6 +224,7 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                     },
                     { navController.navigate(AppRoute.Learning.route) },
                     { navController.navigate(AppRoute.WordHelp.route()) },
+                    onImportCsv = { csvLauncher.launch(arrayOf("text/csv", "text/*", "application/csv")) },
                 )
             }
             composable(AppRoute.Decks.route) {
@@ -186,9 +283,9 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 val error by vm.deckEditorError.collectAsStateWithLifecycle()
                 LaunchedEffect(deckId) { vm.loadDetail(deckId) }
                 when (state) {
-                    is UiState.Error -> com.minlish.app.core.ui.components.ErrorState((state as UiState.Error).message) { vm.loadDetail(deckId) }
+                    is UiState.Error   -> com.minlish.app.core.ui.components.ErrorState((state as UiState.Error).message) { vm.loadDetail(deckId) }
                     is UiState.Success -> DeckEditorScreen((state as UiState.Success).data.deck, error, { name, description, tags -> vm.saveDeck(deckId, name, description, tags) { navController.popBackStack() } }, navController::popBackStack)
-                    else -> LoadingState("Loading deck...")
+                    else               -> LoadingState("Loading deck...")
                 }
             }
             composable(AppRoute.AddWord.route, arguments = listOf(navArgument("deckId") { type = NavType.StringType })) { entry ->
@@ -208,8 +305,8 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 val word = (state as? UiState.Success)?.data?.words?.firstOrNull { it.id == wordId }
                 when {
                     state is UiState.Error -> com.minlish.app.core.ui.components.ErrorState((state as UiState.Error).message) { vm.loadDetail(deckId) }
-                    word != null -> WordDetailScreen(word, navController::popBackStack, { navController.navigate(AppRoute.EditWord.route(deckId, wordId)) }, { vm.deleteWord(wordId) { navController.popBackStack() } }, { navController.navigate(AppRoute.WordHelp.route(word.word)) })
-                    else -> LoadingState("Loading word...")
+                    word != null           -> WordDetailScreen(word, navController::popBackStack, { navController.navigate(AppRoute.EditWord.route(deckId, wordId)) }, { vm.deleteWord(wordId) { navController.popBackStack() } }, { navController.navigate(AppRoute.WordHelp.route(word.word)) })
+                    else                   -> LoadingState("Loading word...")
                 }
             }
             composable(AppRoute.EditWord.route, arguments = listOf(navArgument("deckId") { type = NavType.StringType }, navArgument("wordId") { type = NavType.StringType })) { entry ->
@@ -222,8 +319,8 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                 val word = (state as? UiState.Success)?.data?.words?.firstOrNull { it.id == wordId }
                 when {
                     state is UiState.Error -> com.minlish.app.core.ui.components.ErrorState((state as UiState.Error).message) { vm.loadDetail(deckId) }
-                    word != null -> WordEditorScreen(editor, word, navController::popBackStack, {}, { _, _ -> }, { id, request -> vm.updateWord(id, request) { navController.popBackStack() } })
-                    else -> LoadingState("Loading word...")
+                    word != null           -> WordEditorScreen(editor, word, navController::popBackStack, {}, { _, _ -> }, { id, request -> vm.updateWord(id, request) { navController.popBackStack() } })
+                    else                   -> LoadingState("Loading word...")
                 }
             }
             composable(AppRoute.Learning.route) {
@@ -254,7 +351,8 @@ private fun MainNavigation(me: com.minlish.app.core.model.MeDto, factory: MinLis
                         navController.popBackStack()
                     }
                 }
-                ProfileSetupScreen(state, me.profile, vm::save)
+                // ── CHANGED: truyền thêm onLogout = logout ──
+                ProfileSetupScreen(state, me.profile, vm::save, onLogout = logout)
             }
             composable(AppRoute.Practice.route) {
                 com.minlish.app.core.utils.MinLishLog.nav("Practice")

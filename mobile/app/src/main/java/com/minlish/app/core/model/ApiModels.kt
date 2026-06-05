@@ -10,6 +10,11 @@ data class RegisterRequest(val email: String, val password: String)
 data class LoginRequest(val email: String, val password: String)
 
 @Serializable
+data class GoogleLoginRequest(
+    @SerialName("id_token") val idToken: String,
+)
+
+@Serializable
 data class RefreshRequest(@SerialName("refresh_token") val refreshToken: String)
 
 @Serializable
@@ -88,7 +93,10 @@ data class DictionaryWordDto(
     @SerialName("audio_url") val audioUrl: String? = null,
     @SerialName("part_of_speech") val partOfSpeech: String? = null,
     val meaning: String,
+    @SerialName("description_en") val descriptionEn: String? = null,
     val example: String? = null,
+    val collocations: List<String> = emptyList(),        // ← thêm
+    @SerialName("related_words") val relatedWords: List<String> = emptyList(), // ← thêm
     val synonyms: List<String> = emptyList(),
     val antonyms: List<String> = emptyList(),
     val source: String = "dictionaryapi.dev",

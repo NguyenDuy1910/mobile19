@@ -1,6 +1,7 @@
 package com.minlish.app.auth.data
 
 import com.minlish.app.core.datastore.AuthTokenStore
+import com.minlish.app.core.model.GoogleLoginRequest
 import com.minlish.app.core.model.LoginRequest
 import com.minlish.app.core.model.MeDto
 import com.minlish.app.core.model.ProfileDto
@@ -20,6 +21,15 @@ class AuthRepository(private val apiClient: ApiClient, private val tokenStore: A
 
     suspend fun register(email: String, password: String): ApiResult<MeDto> =
         authenticate { apiClient.service.register(RegisterRequest(email.trim(), password)) }
+
+    /**
+     * Đăng nhập bằng Google.
+     * [idToken] là token lấy được từ Google Credential Manager.
+     * Backend nhận POST /auth/google với body { "id_token": "..." }
+     * và trả về TokenResponse giống login thường.
+     */
+    suspend fun loginWithGoogle(idToken: String): ApiResult<MeDto> =
+        authenticate { apiClient.service.loginWithGoogle(GoogleLoginRequest(idToken)) }
 
     suspend fun me(): ApiResult<MeDto> = safeApiCall(apiClient.json) { apiClient.service.me() }
 

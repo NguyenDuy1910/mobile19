@@ -1,19 +1,14 @@
 package com.minlish.app.home.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.background
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.CreateNewFolder
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,52 +28,78 @@ import com.minlish.app.core.ui.theme.MinLishTheme
 
 @Composable
 fun HomeScreen(
-    state: UiState<HomeData>,
-    onRetry: () -> Unit,
+    state:        UiState<HomeData>,
+    onRetry:      () -> Unit,
     onCreateDeck: () -> Unit,
-    onAddWord: () -> Unit,
-    onReview: () -> Unit,
-    onWordHelp: () -> Unit,
+    onAddWord:    () -> Unit,
+    onReview:     () -> Unit,
+    onWordHelp:   () -> Unit,
+    onImportCsv:  () -> Unit,               // ← tham số mới
 ) {
     when (state) {
-        UiState.Idle, UiState.Loading -> LoadingState("Preparing your learning plan...")
-        UiState.Empty -> EmptyState("Your learning space is ready", "Create your first deck to start learning.", "Create first deck", onCreateDeck, emoji = "🗂️")
-        is UiState.Error -> ErrorState(state.message, onRetry)
-        is UiState.Success -> HomeContent(state.data, onCreateDeck, onAddWord, onReview, onWordHelp)
+        UiState.Idle, UiState.Loading ->
+            LoadingState("Preparing your learning plan...")
+        UiState.Empty ->
+            EmptyState("Your learning space is ready", "Create your first deck to start learning.", "Create first deck", onCreateDeck, emoji = "🗂️")
+        is UiState.Error ->
+            ErrorState(state.message, onRetry)
+        is UiState.Success ->
+            HomeContent(state.data, onCreateDeck, onAddWord, onReview, onWordHelp, onImportCsv)
     }
 }
 
 @Composable
-private fun HomeContent(data: HomeData, onCreateDeck: () -> Unit, onAddWord: () -> Unit, onReview: () -> Unit, onWordHelp: () -> Unit) {
+private fun HomeContent(
+    data:         HomeData,
+    onCreateDeck: () -> Unit,
+    onAddWord:    () -> Unit,
+    onReview:     () -> Unit,
+    onWordHelp:   () -> Unit,
+    onImportCsv:  () -> Unit,
+) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(Spacing.lg),
+        modifier        = Modifier.fillMaxSize(),
+        contentPadding  = PaddingValues(Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(Spacing.md),
     ) {
         item { HeroCard(data, onReview) }
+
+        // ── Stats ─────────────────────────────────────────────────
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                StatCard("Learned", data.progress.learnedWords.toString(), Modifier.weight(1f), Icons.Default.EmojiEvents, MinLishColors.Trophy)
-                StatCard("Day streak", data.progress.streakDays.toString(), Modifier.weight(1f), Icons.Default.LocalFireDepartment, MinLishColors.Streak)
-                StatCard("Accuracy", "${data.progress.accuracyPercentage.toInt()}%", Modifier.weight(1f), Icons.Default.AutoAwesome, MinLishColors.Target)
+                StatCard("Learned",    data.progress.learnedWords.toString(),               Modifier.weight(1f), Icons.Default.EmojiEvents,          MinLishColors.Trophy)
+                StatCard("Day streak", data.progress.streakDays.toString(),                 Modifier.weight(1f), Icons.Default.LocalFireDepartment,   MinLishColors.Streak)
+                StatCard("Accuracy",   "${data.progress.accuracyPercentage.toInt()}%",      Modifier.weight(1f), Icons.Default.AutoAwesome,           MinLishColors.Target)
             }
         }
-        item {
-            MinLishSectionHeader("Quick actions", icon = Icons.Default.PlayArrow)
-        }
+
+        // ── Quick actions ─────────────────────────────────────────
+        item { MinLishSectionHeader("Quick actions", icon = Icons.Default.PlayArrow) }
+
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                QuickAction("Review", Icons.Default.PlayArrow, MinLishColors.Primary, Modifier.weight(1f), onReview)
-                QuickAction("Add word", Icons.Default.Add, MinLishColors.Info, Modifier.weight(1f), onAddWord, enabled = data.decks.isNotEmpty())
+                QuickAction("Review",      Icons.Default.PlayArrow,      MinLishColors.Primary,   Modifier.weight(1f), onReview)
+                QuickAction("Add word",    Icons.Default.Add,            MinLishColors.Info,      Modifier.weight(1f), onAddWord,   enabled = data.decks.isNotEmpty())
             }
         }
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                 QuickAction("Create deck", Icons.Default.CreateNewFolder, MinLishColors.Secondary, Modifier.weight(1f), onCreateDeck)
-                QuickAction("Ask AI", Icons.Default.AutoAwesome, MinLishColors.Accent, Modifier.weight(1f), onWordHelp)
+                QuickAction("Ask AI",      Icons.Default.AutoAwesome,    MinLishColors.Accent,    Modifier.weight(1f), onWordHelp)
             }
         }
+        // ── Hàng mới: Import CSV ──────────────────────────────────
+        item {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                QuickAction("Import CSV",  Icons.Default.Upload,         MinLishColors.Secondary, Modifier.weight(1f), onImportCsv)
+                // Slot trống để giữ layout cân đối
+                Spacer(Modifier.weight(1f))
+            }
+        }
+
+        // ── Your decks ────────────────────────────────────────────
         item { MinLishSectionHeader("Your decks", icon = Icons.AutoMirrored.Filled.MenuBook) }
+
         if (data.decks.isEmpty()) {
             item {
                 MinLishCard {
@@ -111,6 +132,8 @@ private fun HomeContent(data: HomeData, onCreateDeck: () -> Unit, onAddWord: () 
     }
 }
 
+// ── Hero Card ─────────────────────────────────────────────────────
+
 @Composable
 private fun HeroCard(data: HomeData, onReview: () -> Unit) {
     GradientHeroCard {
@@ -131,10 +154,10 @@ private fun HeroCard(data: HomeData, onReview: () -> Unit) {
                 Text("${data.plan.newWordsDue} new · ${data.plan.reviewsDue} reviews", color = Color.White.copy(alpha = 0.9f), style = MaterialTheme.typography.bodySmall)
                 Spacer(Modifier.height(Spacing.md))
                 Button(
-                    onClick = onReview,
+                    onClick  = onReview,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = MinLishColors.PrimaryDark),
+                    shape    = RoundedCornerShape(16.dp),
+                    colors   = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = MinLishColors.PrimaryDark),
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null)
                     Spacer(Modifier.width(Spacing.sm))
@@ -145,15 +168,24 @@ private fun HeroCard(data: HomeData, onReview: () -> Unit) {
     }
 }
 
+// ── Quick Action Card ─────────────────────────────────────────────
+
 @Composable
-private fun QuickAction(label: String, icon: ImageVector, color: Color, modifier: Modifier, onClick: () -> Unit, enabled: Boolean = true) {
+private fun QuickAction(
+    label:   String,
+    icon:    ImageVector,
+    color:   Color,
+    modifier: Modifier,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+) {
     Card(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.height(92.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+        onClick   = onClick,
+        enabled   = enabled,
+        modifier  = modifier.height(92.dp),
+        shape     = RoundedCornerShape(20.dp),
+        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border    = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
         elevation = CardDefaults.cardElevation(defaultElevation = Elevation.card),
     ) {
         Column(
@@ -165,6 +197,8 @@ private fun QuickAction(label: String, icon: ImageVector, color: Color, modifier
         }
     }
 }
+
+// ── Preview ───────────────────────────────────────────────────────
 
 @Preview(showBackground = true)
 @Composable
@@ -179,7 +213,7 @@ private fun HomePreview() {
                     listOf(DeckDto("d", "IELTS Basics", "Core exam vocabulary", listOf("IELTS"))),
                 ),
             ),
-            {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {},
         )
     }
 }

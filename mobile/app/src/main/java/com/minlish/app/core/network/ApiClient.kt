@@ -16,6 +16,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
+
 class ApiClient(
     private val tokenStore: AuthTokenStore,
     private val baseUrl: String = NetworkConfig.baseUrl,
