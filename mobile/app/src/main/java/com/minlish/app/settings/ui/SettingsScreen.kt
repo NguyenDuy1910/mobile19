@@ -2,7 +2,9 @@ package com.minlish.app.settings.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -28,7 +30,13 @@ import com.minlish.app.core.ui.theme.MinLishColors
 @Composable
 fun SettingsScreen(me: MeDto, onProfile: () -> Unit, onNotifications: () -> Unit, onPractice: () -> Unit, onAgent: () -> Unit, onLogout: () -> Unit) {
     Scaffold(topBar = { MinLishTopBar("Settings") }) { padding ->
-        Column(Modifier.padding(padding).padding(Spacing.lg), verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+        Column(
+            Modifier
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(Spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md),
+        ) {
             // Profile header
             MinLishCard(onClick = onProfile) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
