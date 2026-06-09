@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "511181274296",
+    "firebase_url": "https://minlish-6b8ce-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "minlish-6b8ce",
+    "storage_bucket": "minlish-6b8ce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:511181274296:android:4af4ef1343e85ffbe2c84d",
+        "android_client_info": {
+          "package_name": "com.minlish.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "511181274296-dhrrd9o2s1nhagjr56i1ctf4qq400lm4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.minlish.app",
+            "certificate_hash": "b175ffd5dbb10f3998aed8e4b2105159b62a7f74"
+          }
+        },
+        {
+          "client_id": "511181274296-fumbnrcanka77rhatia01akkqnt51tme.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd3tzSWEWfPY-FA5MecA6SQqYYRZ3rVws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "511181274296-fumbnrcanka77rhatia01akkqnt51tme.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

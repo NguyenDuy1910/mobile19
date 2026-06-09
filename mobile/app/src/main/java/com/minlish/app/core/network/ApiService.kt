@@ -7,6 +7,8 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface ApiService {
+    @POST("auth/google")
+    suspend fun loginWithGoogle(@Body request: GoogleLoginRequest): TokenResponse
     @POST("auth/register") suspend fun register(@Body request: RegisterRequest): TokenResponse
     @POST("auth/login") suspend fun login(@Body request: LoginRequest): TokenResponse
     @POST("auth/logout") suspend fun logout(): MessageResponse

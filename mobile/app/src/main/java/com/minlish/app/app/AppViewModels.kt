@@ -72,12 +72,18 @@ class AuthViewModel(private val container: AppContainer) : ViewModel() {
     private val _state = MutableStateFlow(AuthFormState())
     val state = _state.asStateFlow()
 
-    fun login(email: String, password: String) = authenticate("login", email) { container.authRepository.login(email, password) }
-    fun register(email: String, password: String) = authenticate("register", email) { container.authRepository.register(email, password) }
+    fun login(email: String, password: String) =
+        authenticate("login", email) { container.authRepository.login(email, password) }
 
-    private fun authenticate(action: String, email: String, block: suspend () -> ApiResult<MeDto>) {
+    fun register(email: String, password: String) =
+        authenticate("register", email) { container.authRepository.register(email, password) }
+
+    fun loginWithGoogle(idToken: String) =
+        authenticate("google", idToken.take(20)) { container.authRepository.loginWithGoogle(idToken) }
+
+    private fun authenticate(action: String, hint: String, block: suspend () -> ApiResult<MeDto>) {
         viewModelScope.launch {
-            MinLishLog.d("AuthVM", "$action() email=$email")
+            MinLishLog.d("AuthVM", "$action() hint=$hint")
             _state.value = AuthFormState(loading = true)
             _state.value = when (val result = block()) {
                 is ApiResult.Error -> {
